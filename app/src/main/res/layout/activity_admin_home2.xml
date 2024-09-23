@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background4"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="214dp"
+        android:layout_height="55dp"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/playground"
+        android:textColor="@android:color/black"
+        android:text=" ! Hello Admin !"
+        android:textSize="27sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btn_insert_product"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColorHint="@android:color/background_dark"
+        android:layout_marginBottom="14dp"
+        android:text="Insert Product" />
+
+    <Button
+        android:id="@+id/btn_view_product"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp"
+        android:text="View Product/nUpadte Product/nDelete Product"
+        android:textColorHint="@android:color/background_dark" />
+
+</LinearLayout>

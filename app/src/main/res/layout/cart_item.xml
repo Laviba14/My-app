@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@drawable/background10"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/cart_item_image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/pizza"
+            android:layout_gravity="center_horizontal"
+            android:layout_alignParentStart="true"
+            android:contentDescription="Product Image" />
+
+        <TextView
+            android:id="@+id/cart_item_name"
+            android:layout_width="217dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/cart_item_image"
+            android:textColorHint="@color/black"
+            android:background="@android:drawable/spinner_background"
+            android:rotationX="0"
+            android:text="Name:"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/cart_item_price"
+            android:layout_width="218dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cart_item_name"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="0dp"
+            android:textColorHint="@color/black"
+            android:layout_toEndOf="@id/cart_item_image"
+            android:background="@android:drawable/spinner_background"
+            android:text="Price:"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/cart_item_quantity"
+            android:layout_width="214dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cart_item_price"
+            android:layout_marginStart="8dp"
+            android:textColorHint="@color/black"
+            android:layout_marginTop="0dp"
+            android:layout_toEndOf="@id/cart_item_image"
+            android:background="@android:drawable/spinner_background"
+            android:text="Quantity:"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+</ScrollView>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background9"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewOrderSummary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Order Summary"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_gravity="center"
+        android:paddingBottom="8dp" />
+
+    <ListView
+        android:id="@+id/list_view_cart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
+
+    <Button
+        android:id="@+id/buttonPlaceOrder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Place Order"
+        android:drawableLeft="@drawable/baseline_shopping_cart_checkout_24"
+        android:layout_marginTop="16dp"
+        android:textSize="20sp"
+        android:background="@color/design_default_color_primary"
+        android:textColorHint="#140505"
+        android:textStyle="bold"
+        android:padding="12dp"/>
+</LinearLayout>
