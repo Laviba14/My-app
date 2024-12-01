@@ -82,7 +82,7 @@
         <Button
             android:id="@+id/button_search"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:textColor="@color/black"
             android:backgroundTint="@color/design_default_color_secondary_variant"
@@ -91,7 +91,7 @@
         <Button
             android:id="@+id/button_update"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:textColor="@color/black"
             android:backgroundTint="@color/design_default_color_primary"

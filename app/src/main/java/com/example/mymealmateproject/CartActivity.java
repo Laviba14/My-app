@@ -3,67 +3,83 @@ package com.example.mymealmateproject;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.core.view.WindowInsetsCompat;
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CartActivity extends AppCompatActivity {
-    private ListView listViewCart;
-    private DatabaseHelper databaseHelper;
+        private ListView cartItemsListView;
+        private TextView totalPriceTextView;
+        private Button checkoutButton;
+        private DatabaseHelper databaseHelper;
+        private CartAdapter cartAdapter;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cart);
-        listViewCart = findViewById(R.id.list_view_cart);
-       Button buttonOrder = findViewById(R.id.buttonOrder);
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_cart);
 
-        databaseHelper = new DatabaseHelper(this);
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("productName")) {
-            String productName = intent.getStringExtra("productName");
-            double productPrice = intent.getDoubleExtra("productPrice", 0);
-            int productQuantity = intent.getIntExtra("productQuantity", 0);
-            byte[] productImage = intent.getByteArrayExtra("productImage");
-
-            databaseHelper.addToCart(productName, productPrice, productQuantity, productImage);
+            databaseHelper = new DatabaseHelper(this);
+            initializeViews();
+            loadCartData();
+            setupListeners();
+            updateTotalPrice();
         }
 
-        displayCartItems();
+        private void initializeViews() {
+            cartItemsListView = findViewById(R.id.cart_items_listview);
+            totalPriceTextView = findViewById(R.id.cart_total_price);
+            checkoutButton = findViewById(R.id.checkout_button);
+        }
 
-        buttonOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleOrder();
+        private void loadCartData() {
+            List<CartItem> cartItems = databaseHelper.getCartItemsList();
+            if (cartItems.isEmpty()) {
+                Toast.makeText(this, "No items in the cart.", Toast.LENGTH_SHORT).show();
+            } else {
+                cartAdapter=new CartAdapter(this,cartItems,databaseHelper);
+                cartItemsListView.setAdapter(cartAdapter);
             }
-        });
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        displayCartItems();
-    }
+        }
 
-    private void displayCartItems() {
-        Cursor cursor = databaseHelper.getAllCartItems();
-        CartAdapter adapter = new CartAdapter(this, cursor, 0);
-        listViewCart.setAdapter(adapter);
-    }
-    private void handleOrder() {
-        Intent intent = new Intent(CartActivity.this, OrderActivity.class);
+        private void setupListeners() {
+            checkoutButton.setOnClickListener(v -> {
+                if (cartAdapter.getSelectedItems().isEmpty()) {
+                    Toast.makeText(this, "Please select at least one item.", Toast.LENGTH_SHORT).show();
+                } else {
+                    proceedToCheckout();
+                }
+            });
+        }
+
+        private void updateTotalPrice() {
+            double totalPrice = cartAdapter.getTotalPrice();
+            totalPriceTextView.setText("$" + String.format("%.2f", totalPrice));
+        }
+
+    private void proceedToCheckout() {
+        Intent intent = new Intent(CartActivity.this, CheckoutActivity.class);
+        ArrayList<String> selectedItems = new ArrayList<>(cartAdapter.getSelectedItems());
+
+        intent.putStringArrayListExtra("selected_items", selectedItems);
+
         startActivity(intent);
-        Toast.makeText(this, "Proceeding to Order", Toast.LENGTH_SHORT).show();
     }
 
 
+}
 
-    }
+
+
+
+
+
+

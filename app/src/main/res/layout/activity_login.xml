@@ -1,78 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background2"
+    android:background="@drawable/background12"
+    android:gravity="center"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center">
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/Login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Login"
-        android:textSize="35sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="24dp"
-        android:textColor="@android:color/black" />
-
-    <EditText
-        android:id="@+id/et_username"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="username:"
-        android:inputType="text"
-        android:padding="12dp"
-        android:background="@android:drawable/spinner_background"
-        android:drawableLeft="@drawable/baseline_person_24"
-        android:layout_marginBottom="16dp"
-        android:textColor="#0E0D10"
-        android:textColorHint="@color/black"
-        android:autofillHints="username" />
-
-    <EditText
-        android:id="@+id/et_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="password:"
-        android:inputType="textPassword"
-        android:padding="12dp"
-        android:background="@android:drawable/spinner_background"
-        android:drawableLeft="@drawable/baseline_lock_outline_24"
-        android:layout_marginBottom="24dp"
-        android:textColor="#0E0D10"
-        android:textColorHint="@color/black"
-        android:autofillHints="password" />
-
+    <!-- Centered Card View -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_width="wrap_content"
+        android:layout_height="452dp"
+        android:layout_margin="32dp"
+        android:background="@drawable/card"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <Button
-            android:id="@+id/btn_register"
-            android:layout_width="0dp"
+        <!-- Login Title -->
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Register"
-            android:padding="12dp"
-            android:backgroundTint="#F44336"
-            android:textColor="@android:color/white"
-            android:layout_marginEnd="8dp" />
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:text="Login"
+            android:textColor="@android:color/black"
+            android:textSize="35sp"
+            android:textStyle="bold" />
 
+        <!-- Username Field -->
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@android:drawable/spinner_background"
+            android:drawableStart="@drawable/baseline_email_24"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:padding="12dp"
+            android:autofillHints="Email"
+            android:textColor="#0E0D10"
+            android:textColorHint="@color/black" />
+
+        <!-- Password Field -->
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@android:drawable/spinner_background"
+            android:drawableStart="@drawable/baseline_lock_outline_24"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="12dp"
+            android:autofillHints="password"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/black" />
+
+        <!-- Remember Me and Forgot Password -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/remember_me"
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="Remember Me"
+                android:textColor="@android:color/black"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Login Button -->
         <Button
             android:id="@+id/btn_login"
-            android:layout_width="0dp"
+            android:layout_width="216dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Login"
+            android:minHeight="48dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="#96659E"
             android:padding="12dp"
-            android:backgroundTint="@android:color/holo_blue_light"
-            android:textColor="@android:color/white"
-            android:layout_marginStart="8dp" />
+            android:text="Login"
+            android:textColor="@android:color/black"
+            android:textSize="17sp"
+            android:textStyle="bold" />
 
+        <!-- Register Redirect -->
+        <TextView
+            android:id="@+id/tv_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="8dp"
+            android:minHeight="48dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="Don't have an account? Register"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

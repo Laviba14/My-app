@@ -1,48 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background11"
-    android:padding="16dp">
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <TextView
-        android:id="@+id/productDescription"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="46dp"
-        android:fontFamily="@font/playground"
-        android:gravity="center_horizontal"
-        android:text="Product Description"
-        android:textColor="@color/black"
-        android:textSize="20sp" />
-
-    <LinearLayout
-        android:id="@+id/button_container"
+    <!-- Search Bar -->
+    <EditText
+        android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
+        android:hint="Search for food"
+        android:padding="8dp"
+        android:background="@android:drawable/spinner_background"
+        android:drawableStart="@drawable/baseline_search_24" />
 
-
-        <Button
-            android:id="@+id/buttonAddToCart"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:textColor="@color/black"
-            android:backgroundTint="#E91E63"
-            android:drawableLeft="@drawable/baseline_add_shopping_cart_24"
-            android:text="add to Cart" />
-    </LinearLayout>
-
-    <ListView
-        android:id="@+id/list_view_products"
+    <!-- GridView -->
+    <GridView
+        android:id="@+id/product_grid_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/button_container" />
+        android:verticalSpacing="8dp"
+        android:horizontalSpacing="8dp"
+        android:numColumns="2"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
+</LinearLayout>
 
-</RelativeLayout>
