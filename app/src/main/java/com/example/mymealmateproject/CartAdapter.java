@@ -6,109 +6,119 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CartAdapter extends ArrayAdapter<CartItem> {
-
+public class CartAdapter extends BaseAdapter {
     private Context context;
     private List<CartItem> cartItems;
     private DatabaseHelper databaseHelper;
-    private CartUpdateListener cartUpdateListener;
+    private CartActivity cartActivity;
 
-    public interface CartUpdateListener {
-        void updateTotalPrice();
-    }
-
-    // Constructor accepting the context and cartItems
-    public CartAdapter(Context context, List<CartItem> cartItems, DatabaseHelper databaseHelper) {
-        super(context, 0, cartItems);
+    public CartAdapter(Context context, List<CartItem> cartItems, DatabaseHelper databaseHelper, CartActivity cartActivity) {
         this.context = context;
         this.cartItems = cartItems;
         this.databaseHelper = databaseHelper;
+        this.cartActivity = cartActivity;
+    }
 
-        // Check if context implements CartUpdateListener
-        if (context instanceof CartUpdateListener) {
-            this.cartUpdateListener = (CartUpdateListener) context;
-        } else {
-            throw new ClassCastException(context.toString() + " must implement CartUpdateListener");
-        }
+    @Override
+    public int getCount() {
+        return cartItems.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return cartItems.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.cart_item, parent, false);
-        }
-
+        View view = LayoutInflater.from(context).inflate(R.layout.cart_item, parent, false);
         CartItem cartItem = cartItems.get(position);
 
-        CheckBox checkBox = convertView.findViewById(R.id.cart_item_checkbox);
-        ImageView imageView = convertView.findViewById(R.id.cart_item_image);
-        TextView nameTextView = convertView.findViewById(R.id.cart_item_name);
-        TextView priceTextView = convertView.findViewById(R.id.cart_item_price);
-        TextView quantityTextView = convertView.findViewById(R.id.cart_item_quantity);
-        Button removeButton = convertView.findViewById(R.id.cart_item_remove_button);
+        // Set up views
+        CheckBox checkBox = view.findViewById(R.id.cart_item_checkbox);
+        ImageView imageView = view.findViewById(R.id.cart_item_image);
+        TextView nameTextView = view.findViewById(R.id.cart_item_name);
+        TextView priceTextView = view.findViewById(R.id.cart_item_price);
+        TextView quantityTextView = view.findViewById(R.id.cart_item_quantity);
+        Button removeButton = view.findViewById(R.id.cart_item_remove_button);
+        Button incrementButton = view.findViewById(R.id.cart_item_increment_button);  // New button for incrementing quantity
+        Button decrementButton = view.findViewById(R.id.cart_item_decrement_button);  // New button for decrementing quantity
 
-        // Set the data for each cart item
-        // Convert byte[] image to Bitmap and display it in the ImageView
-        if (cartItem.getImage() != null) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(cartItem.getImage(), 0, cartItem.getImage().length);
-            imageView.setImageBitmap(bitmap);
-        } else {
-            imageView.setImageResource(R.drawable.background); // Placeholder for no image
-        }
+        // Set item details
+        checkBox.setChecked(cartItem.isSelected());
         nameTextView.setText(cartItem.getName());
         priceTextView.setText("$" + String.format("%.2f", cartItem.getPrice()));
         quantityTextView.setText("Quantity: " + cartItem.getQuantity());
 
-        // Set CheckBox listener to update selection
-        checkBox.setChecked(cartItem.isSelected());
+        // Set image (convert byte array to Bitmap)
+        Bitmap bitmap = BitmapFactory.decodeByteArray(cartItem.getImageByteArray(), 0, cartItem.getImageByteArray().length);
+        imageView.setImageBitmap(bitmap);
+
+        // Set listeners for item selection checkbox
         checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             cartItem.setSelected(isChecked);
-            // Update the cart item in the database
-            databaseHelper.updateCartItemSelection(cartItem.getName(), isChecked);
+            cartActivity.onCartItemSelectionChanged(cartItem.getId(), isChecked);
         });
 
-        // Set remove button click listener
-        removeButton.setOnClickListener(v -> {
-            // Remove item from the database and the list
-            databaseHelper.removeCartItem(cartItem.getName());
-            cartItems.remove(position);
-            notifyDataSetChanged();
+        // Set listeners for increment and decrement buttons
+        incrementButton.setOnClickListener(v -> updateItemQuantity(cartItem, 1));  // Increment quantity by 1
+        decrementButton.setOnClickListener(v -> updateItemQuantity(cartItem, -1));  // Decrement quantity by 1
 
-            // Update total price
-            cartUpdateListener.updateTotalPrice();
-        });
+        // Set listener for remove button
+        removeButton.setOnClickListener(v -> cartActivity.removeCartItem(cartItem.getName()));
 
-        return convertView;
+        return view;
     }
 
-    // Method to get selected items
-    public List<String> getSelectedItems() {
-        List<String> selectedItems = new ArrayList<>();
+    // Get selected items
+    public List<CartItem> getSelectedItems() {
+        List<CartItem> selectedItems = new ArrayList<>();
         for (CartItem item : cartItems) {
             if (item.isSelected()) {
-                selectedItems.add(item.getName());
+                selectedItems.add(item);
             }
         }
         return selectedItems;
     }
 
-    // Method to calculate the total price of selected items
+    // Calculate total price of selected items
     public double getTotalPrice() {
-        double totalPrice = 0.0;
+        double total = 0;
         for (CartItem item : cartItems) {
             if (item.isSelected()) {
-                totalPrice += item.getPrice() * item.getQuantity();
+                total += item.getPrice() * item.getQuantity();
             }
         }
-        return totalPrice;
+        return total;
+    }
+
+    // Method to update quantity of an item in the cart
+    private void updateItemQuantity(CartItem cartItem, int change) {
+        int newQuantity = cartItem.getQuantity() + change;
+
+        // Prevent negative quantities
+        if (newQuantity >= 1) {
+            cartItem.setQuantity(newQuantity);
+            databaseHelper.updateProductQuantity(cartItem.getId(), newQuantity);  // Update quantity in database
+            notifyDataSetChanged();  // Notify the adapter that data has changed (to update the view)
+            cartActivity.updateTotalPrice();  // Update the total price in CartActivity
+        } else {
+            Toast.makeText(context, "Quantity cannot be less than 1", Toast.LENGTH_SHORT).show();  // Show error for invalid quantity
+        }
     }
 }

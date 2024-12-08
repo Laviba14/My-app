@@ -1,13 +1,15 @@
 package com.example.mymealmateproject;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.content.Intent;
+import android.text.InputType;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -26,6 +28,34 @@ public class RegisterActivity extends AppCompatActivity {
         Button registerButton = findViewById(R.id.btn_register);
         TextView loginTextView = findViewById(R.id.tv_login);
 
+        // Password visibility toggle buttons
+        ImageView togglePasswordVisibility = findViewById(R.id.iv_toggle_password);
+        ImageView toggleConfirmPasswordVisibility = findViewById(R.id.iv_toggle_confirm_password);
+
+        // Toggle password visibility
+        togglePasswordVisibility.setOnClickListener(v -> {
+            if (passwordField.getInputType() == InputType.TYPE_TEXT_VARIATION_PASSWORD) {
+                passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                togglePasswordVisibility.setImageResource(R.drawable.baseline_visibility_off_24);  // 'eye slash' icon
+            } else {
+                passwordField.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                togglePasswordVisibility.setImageResource(R.drawable.baseline_remove_red_eye_24);  // 'eye' icon
+            }
+            passwordField.setSelection(passwordField.getText().length());  // Keep the cursor at the end
+        });
+
+        // Toggle confirm password visibility
+        toggleConfirmPasswordVisibility.setOnClickListener(v -> {
+            if (confirmPasswordField.getInputType() == InputType.TYPE_TEXT_VARIATION_PASSWORD) {
+                confirmPasswordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                toggleConfirmPasswordVisibility.setImageResource(R.drawable.baseline_visibility_off_24);  // 'eye slash' icon
+            } else {
+                confirmPasswordField.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                toggleConfirmPasswordVisibility.setImageResource(R.drawable.baseline_remove_red_eye_24);  // 'eye' icon
+            }
+            confirmPasswordField.setSelection(confirmPasswordField.getText().length());  // Keep the cursor at the end
+        });
+
         // Register button click listener
         registerButton.setOnClickListener(v -> {
             // Retrieve user input
@@ -36,25 +66,19 @@ public class RegisterActivity extends AppCompatActivity {
             String phone = phoneField.getText().toString().trim();
 
             // Perform input validation
-            if (password.equals(confirmPassword) && !password.isEmpty() && !username.isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Well done! Let me insert your info in DB!", Toast.LENGTH_SHORT).show();
+            if (validateInputs(username, email, password, confirmPassword, phone)) {
+                DatabaseHelper dbHelper = new DatabaseHelper(RegisterActivity.this);
+                boolean isInserted = dbHelper.insertUser(username, email, password, phone);
 
-                if (validateInputs(username, email, password, confirmPassword, phone)) {
-                    DatabaseHelper dbHelper = new DatabaseHelper(RegisterActivity.this);
-                    boolean isInserted = dbHelper.insertUser(username, email, password, phone);
-
-                    if (isInserted) {
-                        Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
-                        // Navigate to LoginActivity
-                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                        finish(); // Close RegisterActivity
-                    } else {
-                        Toast.makeText(RegisterActivity.this, "Registration failed. Please try again.", Toast.LENGTH_SHORT).show();
-                    }
+                if (isInserted) {
+                    Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                    // Navigate to LoginActivity
+                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish(); // Close RegisterActivity
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Registration failed. Please try again.", Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(RegisterActivity.this, "Passwords do not match or empty fields!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -68,9 +92,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Input validation method
     private boolean validateInputs(String username, String email, String password, String confirmPassword, String phone) {
-        // Validate username (only alphanumeric characters)
-        if (!username.matches("[a-zA-Z0-9]+")) {
-            Toast.makeText(this, "Invalid username. Only letters and numbers are allowed.", Toast.LENGTH_SHORT).show();
+        // Validate username (letters and spaces only)
+        if (!username.matches("^[a-zA-Z\\s]+$")) {
+            Toast.makeText(this, "Invalid username. Only letters and spaces are allowed.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -80,15 +104,19 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
         }
 
-        // Validate phone number format
-        if (!phone.matches("\\+880\\d{9}")) {
-            Toast.makeText(this, "Phone number must start with +880 and have 11 digits.", Toast.LENGTH_SHORT).show();
+        // Validate phone number format for Bangladesh
+        if (!phone.matches("^(\\+8801[3-9]\\d{8})|(01[3-9]\\d{8})$")) {
+            Toast.makeText(this, "Phone number must start with +880 or 01 and have 11 digits.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // Validate password length
-        if (password.length() < 6) {
-            Toast.makeText(this, "Password must be at least 6 characters long.", Toast.LENGTH_SHORT).show();
+        // Validate password strength
+        if (password.length() < 8 ||
+                !password.matches(".*[A-Z].*") ||
+                !password.matches(".*[a-z].*") ||
+                !password.matches(".*\\d.*") ||
+                !password.matches(".*[!@#$%^&*].*")) {
+            Toast.makeText(this, "Password must be at least 8 characters, include upper, lower, number, and special character.", Toast.LENGTH_SHORT).show();
             return false;
         }
 

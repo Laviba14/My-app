@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background7"
     android:padding="16dp">
 
     <LinearLayout
@@ -10,7 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:fontFamily="@font/playground"
         android:orientation="horizontal"
         android:gravity="center_horizontal">
 
@@ -34,9 +31,7 @@
     <ListView
         android:id="@+id/list_view_products"
         android:layout_width="match_parent"
-        android:fontFamily="@font/playground"
         android:layout_height="match_parent"
         android:layout_above="@id/button_container" />
 
 </RelativeLayout>
-

@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +18,8 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private CheckBox rememberMe;
     private TextView tvRegister;
+    private ImageView ivTogglePassword;  // ImageView for password visibility toggle
+    private boolean isPasswordVisible = false;  // To track password visibility state
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btn_login);
         rememberMe = findViewById(R.id.remember_me);
         tvRegister = findViewById(R.id.tv_register);
+        ivTogglePassword = findViewById(R.id.iv_toggle_password);  // Initialize the ImageView for password toggle
 
         // Check if credentials are already saved in SharedPreferences (for "Remember Me" functionality)
         SharedPreferences sharedPreferences = getSharedPreferences("UserCredentials", MODE_PRIVATE);
@@ -39,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Set up Register button click listener
         tvRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class); // Make sure RegisterActivity exists and is imported
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
 
@@ -50,15 +54,15 @@ public class LoginActivity extends AppCompatActivity {
 
             // Check hardcoded login for admin (optional)
             if (email.equals("admin") && password.equals("admin")) {
-                Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class); // Make sure AdminHomeActivity exists
+                Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
                 startActivity(intent);
-                finish();  // Close the LoginActivity so the user can't go back
+                finish();
                 return;
             }
 
             // Check user credentials in the database (replace with your actual database validation logic)
             DatabaseHelper dbHelper = new DatabaseHelper(LoginActivity.this);
-            boolean result = dbHelper.checkUserByUsername(email, password);
+            boolean result = dbHelper.checkUserByEmail(email);
 
             if (result) {
                 // If Remember Me is checked, save the email and password
@@ -71,13 +75,28 @@ public class LoginActivity extends AppCompatActivity {
 
                 // Successful login
                 Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, ProductDisplay.class); // Make sure ProductDisplay exists
+                Intent intent = new Intent(LoginActivity.this, ProductDisplay.class);
                 startActivity(intent);
-                finish();  // Close the LoginActivity so the user can't go back
+                finish();
             } else {
                 // Invalid credentials
                 Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Set up the toggle password visibility click listener
+        ivTogglePassword.setOnClickListener(v -> {
+            if (isPasswordVisible) {
+                // If password is currently visible, hide it
+                etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                ivTogglePassword.setImageResource(R.drawable.baseline_visibility_off_24);  // Set icon to 'off'
+            } else {
+                // If password is currently hidden, show it
+                etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                ivTogglePassword.setImageResource(R.drawable.baseline_visibility_24);  // Set icon to 'on'
+            }
+            isPasswordVisible = !isPasswordVisible;  // Toggle the visibility state
+            etPassword.setSelection(etPassword.getText().length());  // Move the cursor to the end of the text
         });
     }
 }

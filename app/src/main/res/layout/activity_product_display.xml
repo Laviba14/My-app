@@ -16,6 +16,19 @@
         android:background="@android:drawable/spinner_background"
         android:drawableStart="@drawable/baseline_search_24" />
 
+    <!-- Search Button -->
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:padding="8dp"
+        android:backgroundTint="#FF6200EE"
+        android:textColor="#FFFFFF" />
+
     <!-- GridView -->
     <GridView
         android:id="@+id/product_grid_view"
@@ -27,5 +40,15 @@
         android:padding="8dp"
         android:clipToPadding="false"
         android:scrollbars="vertical" />
-</LinearLayout>
 
+    <!-- No Results Text -->
+    <TextView
+        android:id="@+id/no_results_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Results Found"
+        android:visibility="gone"
+        android:textSize="18sp"
+        android:textColor="#FF0000"
+        android:layout_gravity="center" />
+</LinearLayout>

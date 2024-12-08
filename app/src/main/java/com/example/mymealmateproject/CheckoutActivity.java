@@ -1,109 +1,119 @@
 package com.example.mymealmateproject;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 
 public class CheckoutActivity extends AppCompatActivity {
 
-    private EditText userName, userAddress, userCity, userZip;
-    private RadioGroup paymentGroup, deliveryGroup;
-    private RadioButton selectedPayment, selectedDelivery;
-    private NumberPicker quantityPicker1, quantityPicker2;
-    private TextView foodName1, foodName2, foodPrice1, foodPrice2, deliveryChargeValue, totalPriceValue;
+    private EditText addressEditText;
+    private RadioGroup paymentOptionsRadioGroup;
+    private RecyclerView cartItemsRecyclerView;
+    private TextView totalPriceTextView;
     private Button placeOrderButton;
+    private ArrayList<CartItem> cartItems;
+    private double totalPrice;
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout);
 
-        // Initialize Views
-        userName = findViewById(R.id.user_name);
-        userAddress = findViewById(R.id.user_address);
-        userCity = findViewById(R.id.user_city);
-        userZip = findViewById(R.id.user_zip);
-        paymentGroup = findViewById(R.id.paymentGroup);
-        deliveryGroup = findViewById(R.id.deliveryGroup);
-        quantityPicker1 = findViewById(R.id.quantity_picker_1);
-        quantityPicker2 = findViewById(R.id.quantity_picker_2);
-        foodName1 = findViewById(R.id.food_name_1);
-        foodName2 = findViewById(R.id.food_name_2);
-        foodPrice1 = findViewById(R.id.food_price_1);
-        foodPrice2 = findViewById(R.id.food_price_2);
-        deliveryChargeValue = findViewById(R.id.delivery_charge_value);
-        totalPriceValue = findViewById(R.id.total_price_value);
-        placeOrderButton = findViewById(R.id.place_order_button);
+        // Initialize views
+        initializeViews();
 
-        // Setting default values
-        foodName1.setText("Margherita Pizza");
-        foodName2.setText("Caesar Salad");
-        foodPrice1.setText("$12.99");
-        foodPrice2.setText("$6.99");
-        deliveryChargeValue.setText("$5.00");
+        // Initialize the DatabaseHelper
+        databaseHelper = new DatabaseHelper(this);
 
-        // Set default quantities
-        quantityPicker1.setValue(1);
-        quantityPicker2.setValue(1);
+        // Get cart items and total price from previous activity
+        cartItems = (ArrayList<CartItem>) getIntent().getSerializableExtra("cart_items");
+        totalPrice = getIntent().getDoubleExtra("total_price", 0.0);
 
-        // Calculate Total Price
-        calculateTotalPrice();
-
-        // Place Order Button Action
-        placeOrderButton.setOnClickListener(v -> {
-            if (isInputValid()) {
-                String address = userAddress.getText().toString();
-                String city = userCity.getText().toString();
-                String zip = userZip.getText().toString();
-
-                // Get selected payment and delivery method
-                int selectedPaymentId = paymentGroup.getCheckedRadioButtonId();
-                selectedPayment = findViewById(selectedPaymentId);
-                String paymentMethod = selectedPayment.getText().toString();
-
-                int selectedDeliveryId = deliveryGroup.getCheckedRadioButtonId();
-                selectedDelivery = findViewById(selectedDeliveryId);
-                String deliveryMethod = selectedDelivery.getText().toString();
-
-                // Handle Order Placement (You can send the order to a server or database here)
-                Toast.makeText(this, "Order placed successfully", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Please fill all the details", Toast.LENGTH_SHORT).show();
+        // Debugging: Check if cart items are received
+        if (cartItems == null || cartItems.isEmpty()) {
+            Log.e("CheckoutActivity", "No cart items received!");
+            Toast.makeText(this, "No items in the cart.", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            for (CartItem item : cartItems) {
+                Log.d("CheckoutActivity", "Received Item: " + item.getName() + ", Price: " + item.getPrice());
             }
+            Log.d("CheckoutActivity", "Total Price: " + totalPrice);
+
+            // Load cart items into the RecyclerView
+            loadCartItems();
+            updateTotalPrice();
+        }
+
+        // Set up button listeners
+        setupListeners();
+    }
+
+    private void initializeViews() {
+        addressEditText = findViewById(R.id.checkout_address);
+        paymentOptionsRadioGroup = findViewById(R.id.payment_options);
+        cartItemsRecyclerView = findViewById(R.id.cart_items_recycler_view);
+        totalPriceTextView = findViewById(R.id.total_price);
+        placeOrderButton = findViewById(R.id.place_order_button);
+    }
+
+    private void loadCartItems() {
+        // Set up RecyclerView for displaying cart items
+        CartItemsAdapter adapter = new CartItemsAdapter(this, cartItems);
+        cartItemsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        cartItemsRecyclerView.setAdapter(adapter);
+    }
+
+    private void updateTotalPrice() {
+        // Display the total price
+        totalPriceTextView.setText("$" + String.format("%.2f", totalPrice));
+    }
+
+    private void setupListeners() {
+        placeOrderButton.setOnClickListener(v -> {
+            // Get the selected payment method
+            int selectedPaymentOptionId = paymentOptionsRadioGroup.getCheckedRadioButtonId();
+            RadioButton selectedPaymentOption = findViewById(selectedPaymentOptionId);
+            String selectedPaymentMethod = selectedPaymentOption != null ? selectedPaymentOption.getText().toString() : "";
+
+            // Get the address entered by the user
+            String address = addressEditText.getText().toString().trim();
+
+            if (address.isEmpty()) {
+                Toast.makeText(this, "Please enter a shipping address.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (selectedPaymentMethod.isEmpty()) {
+                Toast.makeText(this, "Please select a payment method.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            placeOrder(address, selectedPaymentMethod);
         });
     }
 
-    // Validate the input fields
-    private boolean isInputValid() {
-        return !userName.getText().toString().isEmpty() &&
-                !userAddress.getText().toString().isEmpty() &&
-                !userCity.getText().toString().isEmpty() &&
-                !userZip.getText().toString().isEmpty() &&
-                paymentGroup.getCheckedRadioButtonId() != -1 &&
-                deliveryGroup.getCheckedRadioButtonId() != -1;
-    }
+    private void placeOrder(String address, String paymentMethod) {
+        databaseHelper.placeOrder(cartItems, address, paymentMethod);
+        Toast.makeText(this, "Order placed successfully!\nShipping to: " + address + "\nPayment Method: " + paymentMethod, Toast.LENGTH_LONG).show();
 
-    // Method to calculate the total price
-    private void calculateTotalPrice() {
-        // Get item quantities and prices
-        int quantity1 = quantityPicker1.getValue();
-        int quantity2 = quantityPicker2.getValue();
-        double price1 = 12.99;  // Margherita Pizza price
-        double price2 = 6.99;   // Caesar Salad price
-        double deliveryCharge = 5.00;
-
-        // Calculate the total price
-        double totalPrice = (quantity1 * price1) + (quantity2 * price2) + deliveryCharge;
-
-        // Update the total price in the UI
-        totalPriceValue.setText("$" + totalPrice);
+        // Redirect to a confirmation or home activity
+        Intent intent = new Intent(CheckoutActivity.this, ConfirmationActivity.class);
+        startActivity(intent);
+        finish();  // Finish the current activity to remove it from the stack
     }
 }

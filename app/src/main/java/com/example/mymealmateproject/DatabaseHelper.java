@@ -3,7 +3,6 @@ package com.example.mymealmateproject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-
+    private SQLiteDatabase db;
     public static final String DATABASE_NAME = "Test_DB";
     public static final int DATABASE_VERSION = 2;
 
@@ -46,6 +45,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_ORDER_PRICE = "orderPrice";
     public static final String COL_ORDER_QUANTITY = "orderQuantity";
     public static final String COL_ORDER_IMAGE_URI = "orderImageUri";
+    public static final String COL_ORDER_ADDRESS = "orderAddress";
+    public static final String COL_ORDER_PAYMENT_METHOD = "orderPaymentMethod";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -84,7 +85,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_ORDER_NAME + " TEXT, " +
                 COL_ORDER_PRICE + " REAL, " +
                 COL_ORDER_QUANTITY + " INTEGER, " +
-                COL_ORDER_IMAGE_URI + " BLOB)");
+                COL_ORDER_IMAGE_URI + " BLOB, " +
+                COL_ORDER_ADDRESS + " TEXT, " +
+                COL_ORDER_PAYMENT_METHOD + " TEXT)");
     }
 
     @Override
@@ -97,7 +100,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);  // Recreate tables after upgrade
     }
 
-    // Insert new user into the 'register' table
+    // Insert a user
     public boolean insertUser(String username, String email, String password, String mobile) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -110,21 +113,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    // Check user credentials for login
-    public boolean checkUserByUsername(String email, String password) {
+    // Check if user exists by username
+    public boolean checkUserByEmail(String email ) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM users WHERE email = ? AND password = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{email, password});
-
-        if (cursor != null && cursor.moveToFirst()) {
-            cursor.close();
-            return true;  // Valid user
-        }
-        return false;  // Invalid user
+        String query = "SELECT * FROM " + TABLE_REGISTER + " WHERE " + COL_EMAIL + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{email});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        db.close();
+        return exists;
     }
 
-
-    // Insert product into the 'products' table
+    // Insert a product
     public void insertProduct(String name, double price, int quantity, byte[] imageByteArray) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -135,6 +135,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_PRODUCTS, null, values);
         db.close();
     }
+    public Cursor getProductByName(String productName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_PRODUCTS + " WHERE " + COL_PRODUCT_NAME + " = ?", new String[]{productName});
+
+    }
+
+    // Update product details
+    public void updateProduct(int productId, String name, double price, int quantity, byte[] imageByteArray) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_PRODUCT_NAME, name);
+        values.put(COL_PRODUCT_PRICE, price);
+        values.put(COL_PRODUCT_QUANTITY, quantity);
+        values.put(COL_PRODUCT_IMAGE_URI, imageByteArray);
+        db.update(TABLE_PRODUCTS, values, COL_ID + " = ?", new String[]{String.valueOf(productId)});
+        db.close();
+    }
+
+    // Delete a product
+    public void deleteProduct(String productName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_PRODUCTS, COL_PRODUCT_NAME + " = ?", new String[]{String.valueOf(productName)});
+        db.close();
+    }
 
     // Get all products
     public Cursor getAllProducts() {
@@ -142,80 +166,109 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM " + TABLE_PRODUCTS, null);
     }
 
-    // Get products by name
-    public Cursor getProductByName(String productName) {
+    public Cursor searchProducts(String searchTerm) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_PRODUCTS + " WHERE " + COL_PRODUCT_NAME + " = ?", new String[]{productName});
+        String query = "SELECT * FROM " + TABLE_PRODUCTS + " WHERE " + COL_PRODUCT_NAME + " LIKE ?";
+        Cursor cursor = db.rawQuery(query, new String[]{"%" + searchTerm + "%"});
+        return cursor;
     }
 
-    // Update product details
-    public void updateProduct(int productId, String productName, double price, int quantity, byte[] productImageByteArray) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COL_PRODUCT_NAME, productName);
-        values.put(COL_PRODUCT_PRICE, price);
-        values.put(COL_PRODUCT_QUANTITY, quantity);
-        values.put(COL_PRODUCT_IMAGE_URI, productImageByteArray);
-        db.update(TABLE_PRODUCTS, values, COL_ID + " = ?", new String[]{String.valueOf(productId)});
-        db.close();
-    }
-
-    // Delete product
-    public void deleteProduct(String productName) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_PRODUCTS, COL_PRODUCT_NAME + " = ?", new String[]{productName});
-        db.close();
-    }
-
-    // Search products by name
-    public Cursor searchProducts(String searchQuery) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_PRODUCTS + " WHERE " + COL_PRODUCT_NAME + " LIKE ?", new String[]{"%" + searchQuery + "%"});
-    }
-
-    // Add item to the cart
-    public void addCartItem(String name, double price, int quantity, byte[] imageByteArray, boolean selected) {
+    public boolean addToCart(String name, double price, int quantity, byte[] imageBytes) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_CART_NAME, name);
         values.put(COL_CART_PRICE, price);
         values.put(COL_CART_QUANTITY, quantity);
-        values.put(COL_CART_IMAGE_URI, imageByteArray);
-        values.put(COL_CART_SELECTED, selected ? 1 : 0); // 1 for true, 0 for false
-        db.insert(TABLE_CART, null, values);
-        db.close();
+        values.put(COL_CART_IMAGE_URI, imageBytes);
+        long result = db.insert(TABLE_CART, null, values);
+        return result != -1; // Return true if insert was successful
     }
 
-    // Get all items from the cart
-    public List<CartItem> getCartItemsList() {
+
+    // Get all cart items
+    public List<CartItem> getCartItems() {
+        List<CartItem> cartItems = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        List<CartItem> cartItemList = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_CART, null);
+        String selectQuery = "SELECT * FROM " + TABLE_CART;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
         if (cursor.moveToFirst()) {
             do {
-                String name=cursor.getString(cursor.getColumnIndexOrThrow(COL_CART_NAME));
-                double price = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_CART_PRICE));
-                int quantity = cursor.getInt(cursor.getColumnIndexOrThrow(COL_CART_QUANTITY));
-                byte[] image = cursor.getBlob(cursor.getColumnIndexOrThrow(COL_CART_IMAGE_URI));
-                boolean selected = cursor.getInt(cursor.getColumnIndexOrThrow(COL_CART_SELECTED)) == 1;
-                CartItem cartItem = new CartItem(name, price, quantity, image, selected);
-                cartItemList.add(cartItem);
+                try {
+                    // Ensure the column exists and retrieve data safely
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID));
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(COL_CART_NAME));
+                    double price = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_CART_PRICE));
+                    int quantity = cursor.getInt(cursor.getColumnIndexOrThrow(COL_CART_QUANTITY));
+                    byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndexOrThrow(COL_CART_IMAGE_URI));
+                    boolean selected = cursor.getInt(cursor.getColumnIndexOrThrow(COL_CART_SELECTED)) > 0;
+
+                    CartItem cartItem = new CartItem(id, name, price, quantity, imageByteArray, selected);
+                    cartItems.add(cartItem);
+                } catch (Exception e) {
+                    // Catch any exception during data retrieval and log it
+                    e.printStackTrace();
+                }
             } while (cursor.moveToNext());
         }
         cursor.close();
-        return cartItemList;
-    }
+        db.close();
 
-    // Update item selection in the cart
-    public void updateCartItemSelection(String name, boolean selected) {
+        return cartItems;
+    }
+    // Update the quantity of a product in the cart
+    public void updateProductQuantity(int cartItemId, int newQuantity) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COL_CART_SELECTED, selected ? 1 : 0);
-        db.update(TABLE_CART, values, COL_CART_NAME + " = ?", new String[]{name});
+        values.put(COL_CART_QUANTITY, newQuantity);  // Update quantity
+        db.update(TABLE_CART, values, COL_ID + " = ?", new String[]{String.valueOf(cartItemId)});
         db.close();
     }
 
-    // Remove item from the cart
+
+
+    // Update product selection in the cart
+    public void updateProductSelection(int cartItemId, boolean isSelected) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_CART_SELECTED, isSelected ? 1 : 0);
+        db.update(TABLE_CART, values, COL_ID + " = ?", new String[]{String.valueOf(cartItemId)});
+        db.close();
+    }
+
+    // Place an order
+    public void placeOrder(ArrayList<CartItem> cartItems, String address, String paymentMethod) {
+        // Assuming you have an orders table to save the order details.
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues orderValues = new ContentValues();
+        orderValues.put("address", address);
+        orderValues.put("payment_method", paymentMethod);
+        orderValues.put("total_price", calculateTotalPrice(cartItems));  // Add total price of the cart
+
+        // Insert the order into the database (adjust to your schema)
+        long orderId = db.insert("orders", null, orderValues);
+
+        // Insert cart items into the order_items table
+        for (CartItem item : cartItems) {
+            ContentValues itemValues = new ContentValues();
+            itemValues.put("order_id", orderId);
+            itemValues.put("product_name", item.getName());
+            itemValues.put("quantity", item.getQuantity());
+            itemValues.put("price", item.getPrice());
+            db.insert("order_items", null, itemValues);
+        }
+    }
+
+    private double calculateTotalPrice(ArrayList<CartItem> cartItems) {
+        double total = 0;
+        for (CartItem item : cartItems) {
+            total += item.getPrice() * item.getQuantity();
+        }
+        return total;
+    }
+
+
+    // Delete item from cart
     public void removeCartItem(String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CART, COL_CART_NAME + " = ?", new String[]{name});

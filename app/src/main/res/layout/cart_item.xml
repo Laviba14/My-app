@@ -1,65 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp"
-    android:gravity="center_vertical">
+    android:padding="16dp">
 
+    <!-- Checkbox for selection -->
     <CheckBox
         android:id="@+id/cart_item_checkbox"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
+        android:paddingStart="8dp" />
 
+    <!-- Image for cart item -->
     <ImageView
         android:id="@+id/cart_item_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:scaleType="centerCrop"
-        android:layout_marginEnd="8dp" />
+        android:layout_width="70dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/background" />
 
+    <!-- Item details (name, price, quantity, buttons) -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical">
 
+        <!-- Name of the item -->
         <TextView
             android:id="@+id/cart_item_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Food Name"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/black" />
+            android:paddingBottom="4dp"
+            android:text="Item Name"
+            android:textSize="16sp" />
 
+        <!-- Price of the item -->
         <TextView
             android:id="@+id/cart_item_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="$0.00"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginTop="4dp" />
+            android:paddingBottom="4dp"
+            android:text="$10.00"
+            android:textSize="14sp" />
 
+        <!-- Quantity and Buttons for increment and decrement -->
         <TextView
             android:id="@+id/cart_item_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Quantity: 1"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginTop="4dp" />
+            android:text="Quantity: 1" />
+
+        <!-- Buttons for increment and decrement -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="8dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/cart_item_increment_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="+"
+                android:textSize="18sp"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/cart_item_decrement_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="-"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+        </LinearLayout>
     </LinearLayout>
 
+    <!-- Remove item button -->
     <Button
         android:id="@+id/cart_item_remove_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Remove"
-        android:textColor="@color/black"
-        android:background="@color/white"
-        android:padding="8dp"/>
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="16dp"/>
+
 </LinearLayout>
