@@ -34,26 +34,26 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Toggle password visibility
         togglePasswordVisibility.setOnClickListener(v -> {
-            if (passwordField.getInputType() == InputType.TYPE_TEXT_VARIATION_PASSWORD) {
-                passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                togglePasswordVisibility.setImageResource(R.drawable.baseline_visibility_off_24);  // 'eye slash' icon
+            if (passwordField.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)) {
+                passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                togglePasswordVisibility.setImageResource(R.drawable.baseline_visibility_24); // 'eye' icon
             } else {
-                passwordField.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                togglePasswordVisibility.setImageResource(R.drawable.baseline_remove_red_eye_24);  // 'eye' icon
+                passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                togglePasswordVisibility.setImageResource(R.drawable.baseline_visibility_off_24); // 'eye slash' icon
             }
-            passwordField.setSelection(passwordField.getText().length());  // Keep the cursor at the end
+            passwordField.setSelection(passwordField.getText().length()); // Maintain cursor position
         });
 
         // Toggle confirm password visibility
         toggleConfirmPasswordVisibility.setOnClickListener(v -> {
-            if (confirmPasswordField.getInputType() == InputType.TYPE_TEXT_VARIATION_PASSWORD) {
-                confirmPasswordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                toggleConfirmPasswordVisibility.setImageResource(R.drawable.baseline_visibility_off_24);  // 'eye slash' icon
+            if (confirmPasswordField.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)) {
+                confirmPasswordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                toggleConfirmPasswordVisibility.setImageResource(R.drawable.baseline_visibility_24); // 'eye' icon
             } else {
-                confirmPasswordField.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                toggleConfirmPasswordVisibility.setImageResource(R.drawable.baseline_remove_red_eye_24);  // 'eye' icon
+                confirmPasswordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                toggleConfirmPasswordVisibility.setImageResource(R.drawable.baseline_visibility_off_24); // 'eye slash' icon
             }
-            confirmPasswordField.setSelection(confirmPasswordField.getText().length());  // Keep the cursor at the end
+            confirmPasswordField.setSelection(confirmPasswordField.getText().length()); // Maintain cursor position
         });
 
         // Register button click listener
