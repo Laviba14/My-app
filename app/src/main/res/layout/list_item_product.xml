@@ -3,16 +3,16 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp"
+    android:padding="5dp"
     android:layout_margin="8dp"
     android:background="?android:attr/selectableItemBackground">
-
 
     <!-- Product Image -->
     <ImageView
         android:id="@+id/product_image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="171dp"
+        android:layout_height="123dp"
+        android:scaleType="centerCrop"
         android:src="@drawable/ic_launcher_background" />
 
     <!-- Product Name -->
@@ -20,10 +20,12 @@
         android:id="@+id/product_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Product Name"
-        android:textSize="16sp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
         android:paddingTop="8dp"
-        android:gravity="center" />
+        android:text="Product Name"
+        android:textColor="#000000"
+        android:textSize="18sp" />
 
     <!-- Product Price -->
     <TextView
@@ -31,16 +33,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Price: $00.00"
-        android:textSize="14sp"
-        android:gravity="center" />
+        android:textSize="18sp"
+        android:gravity="center"
+        android:textColor="@color/black" />
 
-    <!-- Add to Cart Button -->
-    <Button
-        android:id="@+id/add_to_cart_button"
-        android:layout_width="match_parent"
+    <!-- Save to Cart Icon -->
+    <ImageView
+        android:id="@+id/save_to_cart_icon"
+        android:layout_width="170dp"
         android:layout_height="wrap_content"
-        android:text="Add to Cart"
-        android:textColor="#ffffff"
-        android:background="@color/black" />
+        android:layout_gravity="end"
+        android:layout_marginTop="3dp"
+        android:contentDescription="Save to Cart"
+        android:padding="4dp"
+        android:src="@drawable/baseline_favorite_border_24" />
 
 </LinearLayout>

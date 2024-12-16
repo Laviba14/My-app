@@ -7,8 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,9 +55,9 @@ public class CartAdapter extends BaseAdapter {
         TextView nameTextView = view.findViewById(R.id.cart_item_name);
         TextView priceTextView = view.findViewById(R.id.cart_item_price);
         TextView quantityTextView = view.findViewById(R.id.cart_item_quantity);
-        Button removeButton = view.findViewById(R.id.cart_item_remove_button);
-        Button incrementButton = view.findViewById(R.id.cart_item_increment_button);  // New button for incrementing quantity
-        Button decrementButton = view.findViewById(R.id.cart_item_decrement_button);  // New button for decrementing quantity
+        ImageButton removeButton = view.findViewById(R.id.cart_item_remove_button); // ImageButton for remove
+        ImageButton incrementButton = view.findViewById(R.id.cart_item_increment_button);  // ImageButton for increment
+        ImageButton decrementButton = view.findViewById(R.id.cart_item_decrement_button);  // ImageButton for decrement
 
         // Set item details
         checkBox.setChecked(cartItem.isSelected());

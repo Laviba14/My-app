@@ -1,66 +1,77 @@
 package com.example.mymealmateproject;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.EditText;
 import android.widget.RatingBar;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ConfirmationActivity extends AppCompatActivity {
-
-    private TextView thankYouText, orderConfirmationMessage;
-    private RatingBar ratingBar;
-    private RadioGroup ratingGroup;
-    private Button submitReviewButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirmation);
 
-        // Initialize UI components
-        thankYouText = findViewById(R.id.thankYouText);
-        orderConfirmationMessage = findViewById(R.id.orderConfirmationMessage);
-        ratingBar = findViewById(R.id.ratingBar);
-        ratingGroup = findViewById(R.id.ratingGroup);
-        submitReviewButton = findViewById(R.id.submitReviewButton);
+        // References to layouts
+        View thankYouLayout = findViewById(R.id.thankYouLayoutTop);
+        Button backToHomeButton = findViewById(R.id.backToHomeButton);
 
-        // Set click listener for the submit review button
-        submitReviewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Get the selected rating option
-                int selectedRatingId = ratingGroup.getCheckedRadioButtonId();
-                RadioButton selectedRating = findViewById(selectedRatingId);
+        // Show the Thank You Section
+        thankYouLayout.setVisibility(View.VISIBLE);
 
-                // Check if a rating option is selected
-                if (selectedRating == null) {
-                    Toast.makeText(ConfirmationActivity.this, "Please select a rating", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        // Display Rating Dialog after 2 seconds
+        new Handler().postDelayed(this::showRatingDialog, 2000);
 
-                // Get rating from RatingBar
-                float rating = ratingBar.getRating();
+        // Back to Home Button functionality
+        backToHomeButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ConfirmationActivity.this, MainActivity.class); // Replace with your home activity
+            startActivity(intent);
+            finish();
+        });
+    }
 
-                // Display a toast message for confirmation
-                String reviewMessage = "Thank you for your feedback!\n" +
-                        "Your rating: " + selectedRating.getText() + "\n" +
-                        "Stars: " + rating;
-                Toast.makeText(ConfirmationActivity.this, reviewMessage, Toast.LENGTH_LONG).show();
+    private void showRatingDialog() {
+        // Inflate the custom rating dialog layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_rating, null);
 
-                // Optionally, you can handle storing the review or sending it to a server here
+        // Find the RatingBar, EditText, and Submit Button in the dialog layout
+        RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
+        EditText commentEditText = dialogView.findViewById(R.id.commentEditText);
+        Button submitButton = dialogView.findViewById(R.id.submitRatingButton);
 
-                // Optionally, navigate to another activity, like a main page or thank you page.
-                Intent intent = new Intent(ConfirmationActivity.this, MainActivity.class); // Or wherever you want to navigate
-                startActivity(intent);
-                finish(); // Close the ConfirmationActivity
+        // Build the AlertDialog
+        AlertDialog ratingDialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        // Submit Rating Button functionality
+        submitButton.setOnClickListener(v -> {
+            float rating = ratingBar.getRating();
+            String comment = commentEditText.getText().toString().trim();
+
+            // Check if a comment was entered
+            if (comment.isEmpty()) {
+                Toast.makeText(ConfirmationActivity.this, "Please provide a comment before submitting.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(
+                        ConfirmationActivity.this,
+                        "Thanks for your feedback! You gave " + rating + " stars.\nComment: " + comment,
+                        Toast.LENGTH_LONG
+                ).show();
+                ratingDialog.dismiss(); // Close the dialog
             }
         });
+
+        // Show the dialog
+        ratingDialog.show();
     }
 }

@@ -1,99 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:gravity="center"
-    android:background="@drawable/background5">
+    tools:context=".ConfirmationActivity">
 
-    <!-- Thank You Message -->
-    <TextView
-        android:id="@+id/thankYouText"
-        android:layout_width="wrap_content"
+    <!-- Thank You Section -->
+    <LinearLayout
+        android:id="@+id/thankYouLayoutTop"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="!!Thank You For Your Order!!"
-        android:textSize="25sp"
-        android:layout_marginBottom="10dp"
-        android:fontFamily="sans-serif-medium"
-        android:textColor="@android:color/black"/>
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="25dp"
+        android:background="@drawable/background5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!-- Rating and Review Section -->
-
-    <TextView
-        android:id="@+id/orderConfirmationMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="84dp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="12dp"
-        android:fontFamily="sans-serif-condensed-medium"
-        android:text="Your order has been successfully placed.Please wait while we process your order."
-        android:textColor="@android:color/black"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/reviewPrompt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="You can review our app"
-        android:textSize="20sp"
-        android:fontFamily="sans-serif"
-        android:layout_marginBottom="15dp"
-        android:textColor="@android:color/black"/>
-
-    <!-- Rating Bar -->
-    <RatingBar
-        android:id="@+id/ratingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:numStars="5"
-        android:stepSize="0.5"
-        android:rating="0"/>
-
-    <TextView
-        android:id="@+id/performance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Food Quality?"
-        android:textSize="20sp"
-        android:fontFamily="sans-serif"
-        android:layout_marginBottom="15dp"
-        android:textColor="@android:color/black"/>
-    <!-- Review Options -->
-    <RadioGroup
-        android:id="@+id/ratingGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp">
-
-        <RadioButton
-            android:id="@+id/ratingGood"
+        <TextView
+            android:id="@+id/thankYouText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Good"
-            android:layout_marginEnd="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:fontFamily="sans-serif"
+            android:text="!! Thank You for Your Order !!"
+            android:textColor="@android:color/black"
+            android:textSize="24sp" />
 
-        <RadioButton
-            android:id="@+id/ratingAverage"
+        <TextView
+            android:id="@+id/orderConfirmationMessage"
+            android:layout_width="301dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="Your order has been successfully placed. Please wait while we process your order."
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <!-- Back to Home Button -->
+        <Button
+            android:id="@+id/backToHomeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Average"
-            android:layout_marginEnd="10dp"/>
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:text="Back to Home"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
 
-        <RadioButton
-            android:id="@+id/ratingPoor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Poor"
-            android:layout_marginEnd="10dp"/>
-    </RadioGroup>
-
-    <!-- Button to submit the review -->
-    <Button
-        android:id="@+id/submitReviewButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Submit Review"
-        android:layout_marginTop="20dp"/>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

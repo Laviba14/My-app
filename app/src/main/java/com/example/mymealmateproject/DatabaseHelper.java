@@ -235,6 +235,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_CART, values, COL_ID + " = ?", new String[]{String.valueOf(cartItemId)});
         db.close();
     }
+    public int getCartItemCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT SUM(" + COL_CART_QUANTITY + ") AS totalQuantity FROM " + TABLE_CART;
+        Cursor cursor = db.rawQuery(query, null);
+        int totalCount = 0;
+        if (cursor.moveToFirst()) {
+            totalCount = cursor.getInt(cursor.getColumnIndexOrThrow("totalQuantity"));
+        }
+        cursor.close();
+        db.close();
+        return totalCount;
+    }
+    public boolean isProductInCart(String name) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_CART + " WHERE " + COL_CART_NAME + " = ?";
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery(query, new String[]{name});
+            if (cursor.moveToFirst()) {
+                int count = cursor.getInt(0);
+                return count > 0;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+        return false;
+    }
+
+
+    public boolean removeFromCart(String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsAffected = db.delete(TABLE_CART, COL_CART_NAME + " = ?", new String[]{name});
+        db.close();
+        return rowsAffected > 0;
+    }
+
+
+
 
     // Place an order
     public void placeOrder(ArrayList<CartItem> cartItems, String address, String paymentMethod) {

@@ -66,7 +66,7 @@ public class CartActivity extends AppCompatActivity {
 
             // Create an intent and pass the selected items and total price
             Intent intent = new Intent(CartActivity.this, CheckoutActivity.class);
-            intent.putExtra("cart_items", selectedItems);
+            intent.putExtra("cart_items", selectedItems); // Pass ArrayList<CartItem> using putExtra
             intent.putExtra("total_price", totalPrice);
             startActivity(intent);
         });

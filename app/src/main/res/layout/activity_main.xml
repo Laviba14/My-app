@@ -1,30 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    android:gravity="center"
-    android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Notification Switch positioned at the top right corner -->
+    <Switch
+        android:id="@+id/notificationSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:text="Enable the Notifications"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp" />
+
+    <!-- Welcome Text (centered horizontally and vertically) -->
+
+    <!-- Get Started Text (centered horizontally and placed below the Welcome text) -->
     <TextView
         android:id="@+id/et_welcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginBottom="30dp"
         android:fontFamily="@font/playground"
         android:text="Welcome To Food App"
         android:textColor="@android:color/black"
         android:textSize="30sp" />
+
     <TextView
         android:id="@+id/et_started"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/et_welcome"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
         android:fontFamily="@font/playground"
         android:text="Get Started"
         android:textColor="@android:color/black"
         android:textSize="30sp" />
 
-
-</LinearLayout>
+</RelativeLayout>

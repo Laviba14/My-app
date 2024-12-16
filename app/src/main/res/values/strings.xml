@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My mealmate project</string>
+    <string name="app_name">Mealmate</string>
     <string-array name="quantity_options">
         <item>1</item>
         <item>2</item>

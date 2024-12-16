@@ -1,77 +1,83 @@
 package com.example.mymealmateproject;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.cursoradapter.widget.CursorAdapter;
+
 public class ProductAdapter extends CursorAdapter {
 
-    private DatabaseHelper databaseHelper; // Add a reference to DatabaseHelper
+    private DatabaseHelper databaseHelper;
 
     public ProductAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, flags);
-        this.databaseHelper = new DatabaseHelper(context); // Initialize DatabaseHelper
+        this.databaseHelper = new DatabaseHelper(context);
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        return inflater.inflate(R.layout.list_item_product, parent, false);
+        return LayoutInflater.from(context).inflate(R.layout.list_item_product, parent, false);
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        // Get views from the layout
+        // Find views
         TextView nameTextView = view.findViewById(R.id.product_name);
         TextView priceTextView = view.findViewById(R.id.product_price);
         ImageView productImageView = view.findViewById(R.id.product_image);
-        Button addToCartButton = view.findViewById(R.id.add_to_cart_button);
+        ImageView saveToCartIcon = view.findViewById(R.id.save_to_cart_icon);
 
-        // Extract data from the cursor
+        // Extract data from cursor
         String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PRODUCT_NAME));
         double price = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PRODUCT_PRICE));
         byte[] imageBytes = cursor.getBlob(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PRODUCT_IMAGE_URI));
 
-        // Set the text and image in the view
+        // Populate the views
         nameTextView.setText(name);
-        priceTextView.setText("Price: $" + price);
-        Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-        productImageView.setImageBitmap(bitmap);
+        priceTextView.setText(String.format("Price: $%.2f", price));
+        if (imageBytes != null) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            productImageView.setImageBitmap(bitmap);
+        } else {
+            productImageView.setImageResource(R.drawable.ic_launcher_background);
+        }
 
-        // Set click listener for "Add to Cart" button
-        addToCartButton.setOnClickListener(v -> {
-            // Add product to cart using the DatabaseHelper
-            boolean isAdded = databaseHelper.addToCart(name, price, 1, imageBytes); // Add product with quantity 1
-            if (isAdded) {
-                Toast.makeText(context, name + " added to cart.", Toast.LENGTH_SHORT).show();
+        // Check if the product is already in the cart
+        boolean isFavorite = databaseHelper.isProductInCart(name);
 
-                // Optional: Navigate to CartActivity if needed
-                Intent intent = new Intent(context, CartActivity.class);
-                context.startActivity(intent);
+        // Set the initial icon state
+        saveToCartIcon.setImageResource(isFavorite ? R.drawable.baseline_favorite_24 : R.drawable.baseline_favorite_border_24);
+
+        // Save to cart functionality with toggle
+        saveToCartIcon.setOnClickListener(v -> {
+            boolean currentFavoriteState = databaseHelper.isProductInCart(name);
+            if (currentFavoriteState) {
+                // Remove from cart
+                boolean isRemoved = databaseHelper.removeFromCart(name);
+                if (isRemoved) {
+                    Toast.makeText(context, name + " removed from cart.", Toast.LENGTH_SHORT).show();
+                    saveToCartIcon.setImageResource(R.drawable.baseline_favorite_border_24);
+                } else {
+                    Toast.makeText(context, "Failed to remove " + name + " from cart.", Toast.LENGTH_SHORT).show();
+                }
             } else {
-                Toast.makeText(context, "Failed to add " + name + " to cart.", Toast.LENGTH_SHORT).show();
+                // Add to cart
+                boolean isAdded = databaseHelper.addToCart(name, price, 1, imageBytes);
+                if (isAdded) {
+                    Toast.makeText(context, name + " added to cart.", Toast.LENGTH_SHORT).show();
+                    saveToCartIcon.setImageResource(R.drawable.baseline_favorite_24);
+                } else {
+                    Toast.makeText(context, "Failed to add " + name + " to cart.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
-    }
-
-    // Method to update the cursor dynamically and refresh the data
-    public void updateCursor(Cursor newCursor) {
-        // Close the old cursor to avoid memory leaks
-        Cursor oldCursor = swapCursor(newCursor);
-        if (oldCursor != null && !oldCursor.isClosed()) {
-            oldCursor.close();
-        }
-        // Notify the adapter that data has changed
-        notifyDataSetChanged();
     }
 }
