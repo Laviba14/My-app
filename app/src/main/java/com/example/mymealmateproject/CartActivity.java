@@ -1,8 +1,12 @@
 package com.example.mymealmateproject;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -38,13 +42,13 @@ public class CartActivity extends AppCompatActivity {
     }
 
     private void loadCartData() {
-        List<CartItem> cartItems = databaseHelper.getCartItems(); // Get cart items from database
+        List<CartItem> cartItems = databaseHelper.getCartItems();
         if (cartItems.isEmpty()) {
             Toast.makeText(this, "No items in the cart.", Toast.LENGTH_SHORT).show();
         } else {
             cartAdapter = new CartAdapter(this, cartItems, databaseHelper, this);
             cartItemsListView.setAdapter(cartAdapter);
-            updateTotalPrice(); // Update total price when cart data is loaded
+            updateTotalPrice();
         }
     }
 
@@ -58,41 +62,74 @@ public class CartActivity extends AppCompatActivity {
                 return;
             }
 
-            // Log the data being passed
+            // Remove items from the database after checkout
             for (CartItem item : selectedItems) {
-                Log.d("CartActivity", "Item: " + item.getName() + ", Price: " + item.getPrice());
+                databaseHelper.removeCartItem(item.getName());
             }
-            Log.d("CartActivity", "Total Price: " + totalPrice);
 
-            // Create an intent and pass the selected items and total price
+            // Refresh the cart after checkout
+            loadCartData();
+
             Intent intent = new Intent(CartActivity.this, CheckoutActivity.class);
-            intent.putExtra("cart_items", selectedItems); // Pass ArrayList<CartItem> using putExtra
+            intent.putExtra("cart_items", selectedItems);
             intent.putExtra("total_price", totalPrice);
             startActivity(intent);
         });
+
+        // Long click listener to delete an item from the cart
+        cartItemsListView.setOnItemLongClickListener((parent, view, position, id) -> {
+            CartItem cartItem = (CartItem) cartAdapter.getItem(position);
+            Log.d("CartActivity", "Item long clicked: " + cartItem.getName()); // Debugging
+            showDeleteConfirmationDialog(cartItem);
+            return true;  // Ensure the event is handled
+        });
+
+        // Regular click listener to update quantity and check selections
+        cartItemsListView.setOnItemClickListener((parent, view, position, id) -> {
+            CartItem cartItem = (CartItem) cartAdapter.getItem(position);
+            // Handle cart item click (select/unselect item for checkout)
+            boolean newSelectionState = !cartItem.isSelected();
+            cartItem.setSelected(newSelectionState);
+            cartAdapter.notifyDataSetChanged();
+            updateTotalPrice();  // Update total price based on selection
+        });
+    }
+
+    private void showDeleteConfirmationDialog(CartItem cartItem) {
+        Log.d("CartActivity", "Preparing to show dialog for: " + cartItem.getName());
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Item")
+                .setMessage("Are you sure you want to delete " + cartItem.getName() + " from the cart?")
+                .setPositiveButton("Yes", (dialog, which) -> removeCartItem(cartItem)) // Delete the item
+                .setNegativeButton("No", (dialog, which) -> dialog.cancel()) // Cancel deletion
+                .show();
+        Log.d("CartActivity", "Dialog displayed.");
+    }
+
+    private void removeCartItem(CartItem cartItem) {
+        // Remove the item from the database
+        databaseHelper.removeCartItem(cartItem.getName());
+        // Remove the item from the adapter and notify changes
+        cartAdapter.remove(cartItem);
+        cartAdapter.notifyDataSetChanged();
+        updateTotalPrice();
+        Toast.makeText(this, cartItem.getName() + " removed from the cart.", Toast.LENGTH_SHORT).show();
     }
 
     public void updateTotalPrice() {
-        double totalPrice = cartAdapter.getTotalPrice(); // Get the total price from the adapter
+        double totalPrice = cartAdapter.getTotalPrice();
         totalPriceTextView.setText("$" + String.format("%.2f", totalPrice));
     }
 
-    // This method is called when the checkbox selection state changes
     public void onCartItemSelectionChanged(int cartItemId, boolean isSelected) {
         databaseHelper.updateProductSelection(cartItemId, isSelected);
         updateTotalPrice();
     }
 
-    // Method to remove an item from the cart
-    public void removeCartItem(String itemName) {
-        databaseHelper.removeCartItem(itemName);
-        loadCartData();
-        Toast.makeText(this, itemName + " removed from the cart.", Toast.LENGTH_SHORT).show();
-    }
-
-    // Method to update the quantity of an item in the cart
     public void updateCartItemQuantity(int cartItemId, int quantity) {
         databaseHelper.updateProductQuantity(cartItemId, quantity);
-        loadCartData();
+        // Update adapter and refresh the total price
+        cartAdapter.notifyDataSetChanged();
+        updateTotalPrice();
     }
 }

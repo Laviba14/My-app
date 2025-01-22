@@ -1,5 +1,8 @@
 <resources>
+
     <string name="app_name">Mealmate</string>
+
+    <!-- Quantity options for dropdowns or spinners -->
     <string-array name="quantity_options">
         <item>1</item>
         <item>2</item>
@@ -7,5 +10,18 @@
         <item>4</item>
         <item>5</item>
     </string-array>
+
+    <string name="drawer_open">Drawer Open</string>
+    <string name="drawer_close">Drawer Close</string>
+
+    <!-- Other strings -->
+    <string-array name="language_options">
+        <item>English</item>
+        <item>Spanish</item>
+        <item>French</item>
+        <item>German</item>
+        <item>Chinese</item>
+    </string-array>
+
 
 </resources>

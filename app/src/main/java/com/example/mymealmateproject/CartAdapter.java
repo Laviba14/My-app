@@ -55,7 +55,6 @@ public class CartAdapter extends BaseAdapter {
         TextView nameTextView = view.findViewById(R.id.cart_item_name);
         TextView priceTextView = view.findViewById(R.id.cart_item_price);
         TextView quantityTextView = view.findViewById(R.id.cart_item_quantity);
-        ImageButton removeButton = view.findViewById(R.id.cart_item_remove_button); // ImageButton for remove
         ImageButton incrementButton = view.findViewById(R.id.cart_item_increment_button);  // ImageButton for increment
         ImageButton decrementButton = view.findViewById(R.id.cart_item_decrement_button);  // ImageButton for decrement
 
@@ -79,11 +78,35 @@ public class CartAdapter extends BaseAdapter {
         incrementButton.setOnClickListener(v -> updateItemQuantity(cartItem, 1));  // Increment quantity by 1
         decrementButton.setOnClickListener(v -> updateItemQuantity(cartItem, -1));  // Decrement quantity by 1
 
-        // Set listener for remove button
-        removeButton.setOnClickListener(v -> cartActivity.removeCartItem(cartItem.getName()));
+        // Set long-click listener for item removal
+        view.setOnLongClickListener(v -> {
+            showDeleteConfirmationDialog(cartItem);
+            return true;
+        });
 
         return view;
     }
+
+    // Method to show the delete confirmation dialog
+    private void showDeleteConfirmationDialog(CartItem cartItem) {
+        new android.app.AlertDialog.Builder(context)
+                .setTitle("Delete Item")
+                .setMessage("Are you sure you want to delete " + cartItem.getName() + " from the cart?")
+                .setPositiveButton("Yes", (dialog, which) -> removeCartItem(cartItem))
+                .setNegativeButton("No", (dialog, which) -> dialog.cancel())
+                .show();
+    }
+
+    private void removeCartItem(CartItem cartItem) {
+        // Remove the item from the database
+        databaseHelper.removeCartItem(cartItem.getName());  // Pass the name instead of ID
+        // Remove the item from the list and notify changes
+        cartItems.remove(cartItem);
+        notifyDataSetChanged();
+        Toast.makeText(context, cartItem.getName() + " removed from the cart.", Toast.LENGTH_SHORT).show();
+        cartActivity.updateTotalPrice();  // Update the total price in CartActivity
+    }
+
 
     // Get selected items
     public List<CartItem> getSelectedItems() {
@@ -120,5 +143,13 @@ public class CartAdapter extends BaseAdapter {
         } else {
             Toast.makeText(context, "Quantity cannot be less than 1", Toast.LENGTH_SHORT).show();  // Show error for invalid quantity
         }
+    }
+
+    // Method to remove an item from the cart
+    public void remove(CartItem cartItem) {
+        // Remove the item from the list
+        cartItems.remove(cartItem);
+        // Notify the adapter that the data has changed
+        notifyDataSetChanged();
     }
 }

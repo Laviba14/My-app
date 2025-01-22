@@ -65,6 +65,8 @@ public class ProductAdapter extends CursorAdapter {
                 if (isRemoved) {
                     Toast.makeText(context, name + " removed from cart.", Toast.LENGTH_SHORT).show();
                     saveToCartIcon.setImageResource(R.drawable.baseline_favorite_border_24);
+                    // Update cart item count in the main activity
+                    ((ProductDisplay) context).updateCartBadge();
                 } else {
                     Toast.makeText(context, "Failed to remove " + name + " from cart.", Toast.LENGTH_SHORT).show();
                 }
@@ -74,6 +76,8 @@ public class ProductAdapter extends CursorAdapter {
                 if (isAdded) {
                     Toast.makeText(context, name + " added to cart.", Toast.LENGTH_SHORT).show();
                     saveToCartIcon.setImageResource(R.drawable.baseline_favorite_24);
+                    // Update cart item count in the main activity
+                    ((ProductDisplay) context).updateCartBadge();
                 } else {
                     Toast.makeText(context, "Failed to add " + name + " to cart.", Toast.LENGTH_SHORT).show();
                 }

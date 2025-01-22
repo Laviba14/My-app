@@ -2,6 +2,7 @@ package com.example.mymealmateproject;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
@@ -30,6 +31,7 @@ public class AdminHomeActivity extends AppCompatActivity {
             Intent intent = new Intent(AdminHomeActivity.this, ViewProductActivity.class);
             startActivity(intent);
         });
+   
 
 
             }

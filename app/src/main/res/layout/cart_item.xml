@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:padding="16dp">
 
     <!-- Checkbox for selection -->
@@ -81,14 +83,4 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Delete item button (icon) -->
-    <ImageButton
-        android:id="@+id/cart_item_remove_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginStart="16dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/baseline_delete_24"
-        android:contentDescription="Remove Item" />
 </LinearLayout>

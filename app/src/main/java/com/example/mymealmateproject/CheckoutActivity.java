@@ -93,8 +93,15 @@ public class CheckoutActivity extends AppCompatActivity {
             // Get the address entered by the user
             String address = addressEditText.getText().toString().trim();
 
+            // Validate address
             if (address.isEmpty()) {
                 Toast.makeText(this, "Please enter a shipping address.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Check if the address contains "Sylhet" (case-insensitive)
+            if (!address.toLowerCase().contains("sylhet")) {
+                Toast.makeText(this, "Sorry, we only deliver in Sylhet city.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -108,7 +115,10 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void placeOrder(String address, String paymentMethod) {
+        // Place the order in the database
         databaseHelper.placeOrder(cartItems, address, paymentMethod);
+
+        // Show success message
         Toast.makeText(this, "Order placed successfully!\nShipping to: " + address + "\nPayment Method: " + paymentMethod, Toast.LENGTH_LONG).show();
 
         // Redirect to a confirmation or home activity

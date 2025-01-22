@@ -31,7 +31,7 @@ public class ConfirmationActivity extends AppCompatActivity {
 
         // Back to Home Button functionality
         backToHomeButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ConfirmationActivity.this, MainActivity.class); // Replace with your home activity
+            Intent intent = new Intent(ConfirmationActivity.this, ProductDisplay.class); // Replace with your home activity
             startActivity(intent);
             finish();
         });

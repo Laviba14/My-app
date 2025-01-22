@@ -1,6 +1,9 @@
 package com.example.mymealmateproject;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -8,8 +11,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.Intent;
-import android.text.InputType;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -65,13 +67,39 @@ public class RegisterActivity extends AppCompatActivity {
             String confirmPassword = confirmPasswordField.getText().toString().trim();
             String phone = phoneField.getText().toString().trim();
 
-            // Perform input validation
-            if (validateInputs(username, email, password, confirmPassword, phone)) {
-                DatabaseHelper dbHelper = new DatabaseHelper(RegisterActivity.this);
+            // Check for empty fields
+            if (username.isEmpty() || email.isEmpty() || phone.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Validate inputs
+            if (!validateInputs(username, email, password, confirmPassword, phone)) {
+                return;
+            }
+
+            // Initialize database helper
+            DatabaseHelper dbHelper = new DatabaseHelper(RegisterActivity.this);
+
+            // Check if email or phone number is already registered
+            boolean isEmailUnique = dbHelper.isEmailUnique(email);
+            boolean isPhoneUnique = dbHelper.isPhoneNumberUnique(phone);
+
+            if (!isEmailUnique && !isPhoneUnique) {
+                Toast.makeText(this, "Both email and phone number are already registered. Please use different details.", Toast.LENGTH_LONG).show();
+            } else if (!isEmailUnique) {
+                Toast.makeText(this, "Email is already registered. Please use a different email.", Toast.LENGTH_SHORT).show();
+            } else if (!isPhoneUnique) {
+                Toast.makeText(this, "Phone number is already registered. Please use a different phone number.", Toast.LENGTH_SHORT).show();
+            } else {
+                // Save user profile in SharedPreferences
+                saveUserProfile(username, email, phone);
+
+                // Save details in the database
                 boolean isInserted = dbHelper.insertUser(username, email, password, phone);
 
                 if (isInserted) {
-                    Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Registration Successful! Your details have been saved.", Toast.LENGTH_SHORT).show();
                     // Navigate to LoginActivity
                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                     startActivity(intent);
@@ -88,6 +116,16 @@ public class RegisterActivity extends AppCompatActivity {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
         });
+    }
+
+    // Method to save user profile in SharedPreferences
+    private void saveUserProfile(String name, String email, String phone) {
+        SharedPreferences sharedPreferences = getSharedPreferences("UserProfile", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("Name", name);
+        editor.putString("Email", email);
+        editor.putString("Phone", phone);
+        editor.apply();  // Save changes
     }
 
     // Input validation method

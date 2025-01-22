@@ -5,22 +5,6 @@
     android:background="@drawable/background"
     android:padding="16dp">
 
-    <!-- Notification Switch positioned at the top right corner -->
-    <Switch
-        android:id="@+id/notificationSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:text="Enable the Notifications"
-        android:textColor="@android:color/black"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp" />
-
-    <!-- Welcome Text (centered horizontally and vertically) -->
-
     <!-- Get Started Text (centered horizontally and placed below the Welcome text) -->
     <TextView
         android:id="@+id/et_welcome"

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_PRODUCTS = "products";
     public static final String TABLE_CART = "Cart";
     public static final String TABLE_ORDERS = "orders";
+    public static final String TABLE_USER_SETTINGS = "user_settings";
 
     // Column names for register table
     public static final String COL_ID = "_id";
@@ -47,6 +49,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_ORDER_IMAGE_URI = "orderImageUri";
     public static final String COL_ORDER_ADDRESS = "orderAddress";
     public static final String COL_ORDER_PAYMENT_METHOD = "orderPaymentMethod";
+
+    public static final String COLUMN_NOTIFICATIONS_ENABLED = "notifications_enabled";
+    public static final String COLUMN_LANGUAGE = "language";
+
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -88,7 +95,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_ORDER_IMAGE_URI + " BLOB, " +
                 COL_ORDER_ADDRESS + " TEXT, " +
                 COL_ORDER_PAYMENT_METHOD + " TEXT)");
+
+        // Create table for user settings
+        db.execSQL("CREATE TABLE " + TABLE_USER_SETTINGS + " (" +
+                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_NOTIFICATIONS_ENABLED + " INTEGER, " +
+                COLUMN_LANGUAGE + " TEXT)");
+
     }
+
+
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -97,6 +114,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CART);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_SETTINGS);
+
         onCreate(db);  // Recreate tables after upgrade
     }
 
@@ -113,16 +132,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    // Check if user exists by username
-    public boolean checkUserByEmail(String email ) {
+    public boolean isUserValid(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM " + TABLE_REGISTER + " WHERE " + COL_EMAIL + " = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{email});
-        boolean exists = cursor.getCount() > 0;
+
+        // Query to check if the user with the given email and password exists
+        String query = "SELECT * FROM " + TABLE_REGISTER + " WHERE " + COL_EMAIL + "=? AND " + COL_PASSWORD + "=?";
+        Cursor cursor = db.rawQuery(query, new String[]{email, password});
+
+        boolean isValid = cursor.getCount() > 0;
         cursor.close();
         db.close();
-        return exists;
+        return isValid;
     }
+    public boolean isEmailUnique(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_REGISTER + " WHERE " + COL_EMAIL + " = ?", new String[]{email});
+        boolean isUnique = !cursor.moveToFirst();
+        cursor.close();
+        return isUnique;
+    }
+    public boolean isPhoneNumberUnique(String phone) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        // Query the database to check if the phone number already exists
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_REGISTER + " WHERE " + COL_MOBILE + " = ?", new String[]{phone});
+        boolean isUnique = !cursor.moveToFirst();  // If cursor does not move to the first row, the phone number is unique
+        cursor.close();  // Always close the cursor after use
+        return isUnique;  // Return true if phone number is unique, false otherwise
+    }
+
+
 
     // Insert a product
     public void insertProduct(String name, double price, int quantity, byte[] imageByteArray) {
@@ -160,6 +198,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void saveUserSettings(boolean notificationsEnabled, String language) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NOTIFICATIONS_ENABLED, notificationsEnabled ? 1 : 0);
+        values.put(COLUMN_LANGUAGE, language);
+
+        // Check if settings exist, if so update; otherwise insert
+        Cursor cursor = db.query(TABLE_USER_SETTINGS, null, null, null, null, null, null);
+        if (cursor.getCount() > 0) {
+            db.update(TABLE_USER_SETTINGS, values, null, null);
+        } else {
+            db.insert(TABLE_USER_SETTINGS, null, values);
+        }
+        cursor.close();
+    }
+
+    // Load user settings
+    public Cursor loadUserSettings() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_USER_SETTINGS, null, null, null, null, null, null);
+    }
+    public Cursor getUserByEmailCursor(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT username, email, mobile FROM " + TABLE_REGISTER + " WHERE " + COL_EMAIL + " = ?";
+        return db.rawQuery(query, new String[]{email});
+    }
+
+    public boolean updateUserProfile(String email, String username, String newEmail, String phone) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL_USERNAME, username);
+        contentValues.put(COL_EMAIL, newEmail);
+        contentValues.put(COL_MOBILE, phone);
+
+        int rows = db.update(TABLE_REGISTER, contentValues, COL_EMAIL + " = ?", new String[]{email});
+        db.close();
+        return rows > 0;
+    }
+
+
     // Get all products
     public Cursor getAllProducts() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -172,6 +250,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, new String[]{"%" + searchTerm + "%"});
         return cursor;
     }
+
 
     public boolean addToCart(String name, double price, int quantity, byte[] imageBytes) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -315,4 +394,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_CART, COL_CART_NAME + " = ?", new String[]{name});
         db.close();
     }
+
 }

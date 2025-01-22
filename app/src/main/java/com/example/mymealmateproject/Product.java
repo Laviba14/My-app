@@ -14,10 +14,14 @@ public class Product {
         this.productImage = productImage;
     }
 
-    // Getters and setters (optional)
+    // Getters
     public int getProductId() { return productId; }
     public String getProductName() { return productName; }
     public String getProductPrice() { return productPrice; }
     public byte[] getProductImage() { return productImage; }
-}
 
+    // Setters (if needed)
+    public void setProductName(String productName) { this.productName = productName; }
+    public void setProductPrice(String productPrice) { this.productPrice = productPrice; }
+    public void setProductImage(byte[] productImage) { this.productImage = productImage; }
+}

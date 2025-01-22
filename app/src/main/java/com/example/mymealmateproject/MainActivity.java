@@ -1,18 +1,17 @@
 package com.example.mymealmateproject;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.animation.AlphaAnimation;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView etWelcome, etStarted;
-    private Switch notificationSwitch;  // Declare the Switch variable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,37 +20,34 @@ public class MainActivity extends AppCompatActivity {
 
         etWelcome = findViewById(R.id.et_welcome);
         etStarted = findViewById(R.id.et_started);
-        notificationSwitch = findViewById(R.id.notificationSwitch);  // Initialize the Switch
 
         // Apply fade-in animation to text
         AlphaAnimation fadeIn = new AlphaAnimation(0, 1);
-        fadeIn.setDuration(3000);
-        fadeIn.setFillAfter(true);
+        fadeIn.setDuration(2000); // Animation duration
+        fadeIn.setFillAfter(true); // Keep the text visible after the animation
 
         etWelcome.startAnimation(fadeIn);
         etStarted.startAnimation(fadeIn);
 
-        // Set notification switch listener
-        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                // Show a toast when the user enables notifications
-                Toast.makeText(MainActivity.this, "Notifications Enabled", Toast.LENGTH_SHORT).show();
-            } else {
-                // Show a toast when the user disables notifications
-                Toast.makeText(MainActivity.this, "Notifications Disabled", Toast.LENGTH_SHORT).show();
-            }
-        });
+        // Check login state after animation is done using a handler
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Check login state using SharedPreferences
+                SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
 
-        // Automatically navigate to LoginActivity after 3 seconds
-        new Thread(() -> {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                if (isLoggedIn) {
+                    // If user is logged in, redirect to ProductDisplayActivity
+                    Intent intent = new Intent(MainActivity.this, ProductDisplay.class);
+                    startActivity(intent);
+                } else {
+                    // Otherwise, redirect to LoginActivity
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+                finish(); // Close MainActivity to prevent going back to it
             }
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }).start();
+        }, 2500); // Wait for 2.5 seconds to allow the animation to complete
     }
 }
